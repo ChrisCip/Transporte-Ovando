@@ -23,13 +23,18 @@ export const useGoogleReviews = () => {
 
     (async () => {
       try {
-        const res = await fetch('/api/google-reviews', { signal: controller.signal });
+        const res = await fetch('/api/google-reviews?v=2', { signal: controller.signal });
         if (!res.ok) throw new Error(`status ${res.status}`);
         const data = await res.json();
         const reviews = Array.isArray(data.reviews) ? data.reviews.filter((r) => r && r.text) : [];
         if (!alive) return;
         if (reviews.length === 0) {
-          setState({ ...FALLBACK }); // mantiene rating/total del fallback
+          setState({
+            ...FALLBACK,
+            rating: Number(data.rating) || GOOGLE_RATING_FALLBACK,
+            total: Number(data.total) || GOOGLE_REVIEWS_COUNT_FALLBACK,
+            source: data.source || 'fallback',
+          });
           return;
         }
         setState({
