@@ -94,10 +94,10 @@ export const QuoteWidget = ({ onQuote }) => {
       </div>
 
       <button type="submit" className="btn-primary w-full mt-5 text-base md:text-lg animate-pulse">
-        <Icon name="Search" size={20} /> Ver opciones disponibles
+        <Icon name="Search" size={20} /> Solicitar cotización
       </button>
       <p className="text-center text-xs text-slate-500 mt-3 flex items-center justify-center gap-1.5">
-        <Icon name="ShieldCheck" size={14} className="text-cyan-600" /> Sin cargos por reserva. Pago al chofer.
+        <Icon name="ShieldCheck" size={14} className="text-cyan-600" /> Te contactaremos para confirmar disponibilidad.
       </p>
     </form>
   );

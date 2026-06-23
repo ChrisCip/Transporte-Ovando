@@ -19,6 +19,7 @@ const App = () => {
   const [adminAuth, setAdminAuth] = useState(false);
   const [bookingService, setBookingService] = useState(null);
   const [bookingPrefill, setBookingPrefill] = useState({});
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -75,23 +76,32 @@ const App = () => {
     setBookingService(service);
   };
 
-  const submitBooking = (bookingData) => {
-    const subject = encodeURIComponent(`Nueva Reserva: ${bookingData.serviceName}`);
-    const body = encodeURIComponent(
-      `Detalles de la Reserva:
-----------------------
-Cliente: ${bookingData.name}
-Teléfono: ${bookingData.phone}
-Servicio: ${bookingData.serviceName}
-Origen: ${bookingData.origin}
-Destino: ${bookingData.destination}
-Fecha: ${bookingData.date}
-Pasajeros: ${bookingData.pax}`
-    );
-    window.open(`mailto:admin@ovandotransporte.com?subject=${subject}&body=${body}`);
-    setBookingService(null);
-    setBookingPrefill({});
-    showToast("Reserva enviada. Revisa tu correo.");
+  const submitBooking = async (bookingData) => {
+    setBookingSubmitting(true);
+    try {
+      const response = await fetch('/api/send-booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData),
+      });
+
+      if (!response.ok) {
+        const error = new Error(response.status === 503 ? "email_not_configured" : "send_failed");
+        error.status = response.status;
+        throw error;
+      }
+
+      setBookingService(null);
+      setBookingPrefill({});
+      showToast("Solicitud enviada. Te contactaremos para confirmar.");
+    } catch (error) {
+      const message = error?.status === 503
+        ? "El correo de reservas no está configurado en Vercel."
+        : "No se pudo enviar la solicitud. Intenta por WhatsApp.";
+      showToast(message);
+    } finally {
+      setBookingSubmitting(false);
+    }
   };
 
   return (
@@ -126,6 +136,7 @@ Pasajeros: ${bookingData.pax}`
           prefill={bookingPrefill}
           onClose={() => { setBookingService(null); setBookingPrefill({}); }}
           onSubmit={submitBooking}
+          submitting={bookingSubmitting}
         />
       )}
       {toast && <Toast data={toast} onClose={() => setToast(null)} />}

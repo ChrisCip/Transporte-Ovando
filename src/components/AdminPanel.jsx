@@ -135,7 +135,7 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button onClick={onReset} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-              <Icon name="RotateCcw" size={16} /> Restaurar mock
+              <Icon name="RotateCcw" size={16} /> Restaurar catálogo
             </button>
             <a href="#inicio" className="text-sm font-medium text-cyan-100 hover:text-white flex items-center gap-2 transition px-2 py-2">
               <Icon name="Globe" size={16} /> Ver sitio

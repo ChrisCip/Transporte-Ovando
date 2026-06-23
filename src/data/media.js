@@ -1,100 +1,86 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// MEDIA CENTRALIZADO · Transporte Ovando
-// Cada slide/clip define: src (vídeo opcional), poster (imagen LCP) y label.
-//
-// Funcionamiento progresivo:
-//  1. Sin ficheros de vídeo → se muestran los posters con efecto Ken Burns +
-//     crossfade (ya se ve cinematográfico, sin estado roto).
-//  2. El propietario suelta sus .mp4 en /public/videos y .webp en /public/posters;
-//     `src` se reproduce encima del poster automáticamente.
-//
-// Los posters por defecto usan Unsplash (auto=format → sirve webp) para que la
-// landing luzca de inmediato. Sustitúyelos por media propia de RD cuando esté.
-// ─────────────────────────────────────────────────────────────────────────────
+import { DESTINATION_IMAGES, VEHICLE_IMAGES } from "./constants";
 
-const unsplash = (id, w = 1600) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=80`;
+// Media centralizado. Las imagenes viven en /public y Vercel las sirve desde
+// la raiz del dominio. Si luego agregas mp4 en /public/videos, se reproducen
+// sobre estos posters sin romper el fallback de imagen estatica.
 
-// Vídeos del hero (rotación con crossfade). `src` puede ser "" hasta tener el mp4.
 export const HERO_VIDEOS = [
   {
-    id: 'airport',
-    src: '/videos/airport.mp4',
-    poster: unsplash('photo-1544620347-c4fd4a3d5957'),
-    label: 'Traslado aeropuerto',
-    caption: 'Recepción Meet & Greet en PUJ',
+    id: "airport-vip",
+    src: "",
+    poster: VEHICLE_IMAGES.tahoeChauffeur,
+    label: "Traslado aeropuerto",
+    caption: "Meet & Greet en SUV premium",
   },
   {
-    id: 'coast',
-    src: '/videos/coast.mp4',
-    poster: unsplash('photo-1507525428034-b723cf961d3e'),
-    label: 'Costa caribeña',
-    caption: 'Ruta panorámica hacia Bávaro',
+    id: "saona",
+    src: "",
+    poster: DESTINATION_IMAGES.playaLancha,
+    label: "Isla Saona",
+    caption: "Excursiones privadas al Caribe",
   },
   {
-    id: 'saona',
-    src: '/videos/saona.mp4',
-    poster: unsplash('photo-1559827260-dc66d52bef19'),
-    label: 'Isla Saona',
-    caption: 'Excursión en catamarán',
+    id: "samana",
+    src: "",
+    poster: DESTINATION_IMAGES.samanaPalm,
+    label: "Samaná",
+    caption: "Playas y rutas del nordeste",
   },
   {
-    id: 'capcana',
-    src: '/videos/capcana.mp4',
-    poster: unsplash('photo-1505228395891-9a51e7e86bf6'),
-    label: 'Cap Cana',
-    caption: 'SUV premium puerta a puerta',
+    id: "fleet",
+    src: "",
+    poster: VEHICLE_IMAGES.minivanPremium,
+    label: "Flota moderna",
+    caption: "Minivans y SUVs climatizadas",
   },
 ];
 
-// Tira horizontal de experiencias (scroll-snap). Vídeos cortos opcionales.
 export const STRIP_CLIPS = [
   {
-    id: 'puj-bavaro',
-    src: '/videos/puj-bavaro.mp4',
-    poster: unsplash('photo-1583244532610-2a234e7c3aff', 900),
-    label: 'PUJ → Bávaro',
-    meta: '25 min · Traslado privado',
+    id: "puj-bavaro",
+    src: "",
+    poster: VEHICLE_IMAGES.tahoeChauffeur,
+    label: "PUJ → Bávaro",
+    meta: "25 min · SUV privado",
   },
   {
-    id: 'saona',
-    src: '/videos/saona.mp4',
-    poster: unsplash('photo-1559827260-dc66d52bef19', 900),
-    label: 'Isla Saona',
-    meta: 'Día completo · Catamarán',
+    id: "hotel-hotel",
+    src: "",
+    poster: VEHICLE_IMAGES.minivanPremium,
+    label: "Hotel → Hotel",
+    meta: "Puerta a puerta · A/C",
   },
   {
-    id: 'capcana',
-    src: '/videos/capcana.mp4',
-    poster: unsplash('photo-1505228395891-9a51e7e86bf6', 900),
-    label: 'Cap Cana',
-    meta: 'Marina & golf · VIP',
+    id: "saona",
+    src: "",
+    poster: DESTINATION_IMAGES.saonaBeach,
+    label: "Isla Saona",
+    meta: "Día completo · Lancha",
   },
   {
-    id: 'samana',
-    src: '/videos/samana.mp4',
-    poster: unsplash('photo-1518105779142-d975f22f1b0a', 900),
-    label: 'Samaná',
-    meta: 'Ballenas · Los Haitises',
+    id: "samana",
+    src: "",
+    poster: DESTINATION_IMAGES.playitaSamana,
+    label: "Samaná",
+    meta: "Playas · Miradores",
   },
   {
-    id: 'sdq-uvero',
-    src: '/videos/sdq-uvero.mp4',
-    poster: unsplash('photo-1549317661-bd32c8ce0db2', 900),
-    label: 'SDQ → Uvero Alto',
-    meta: '2 h 15 · Minivan familiar',
+    id: "fronton",
+    src: "",
+    poster: DESTINATION_IMAGES.frontonCove,
+    label: "Playa Frontón",
+    meta: "Costa norte · Privado",
   },
   {
-    id: 'santo-domingo',
-    src: '/videos/santo-domingo.mp4',
-    poster: unsplash('photo-1518638150340-f706e86654de', 900),
-    label: 'Santo Domingo',
-    meta: 'Zona Colonial · City tour',
+    id: "rent-a-car",
+    src: "",
+    poster: VEHICLE_IMAGES.tahoeUrban,
+    label: "Rent a Car",
+    meta: "SUV premium · Flexible",
   },
 ];
 
-// Fondo tenue del footer (mar en bucle). Cae a gradiente animado si no hay mp4.
 export const FOOTER_MEDIA = {
-  src: '/videos/coast.mp4',
-  poster: unsplash('photo-1507525428034-b723cf961d3e'),
+  src: "",
+  poster: DESTINATION_IMAGES.coastAerial,
 };

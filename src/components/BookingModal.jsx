@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Icon } from '../Icon';
 
-export const BookingModal = ({ service, prefill = {}, onClose, onSubmit }) => {
+export const BookingModal = ({ service, prefill = {}, onClose, onSubmit, submitting = false }) => {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -13,9 +13,9 @@ export const BookingModal = ({ service, prefill = {}, onClose, onSubmit }) => {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    onSubmit({ ...formData, serviceName: service.name });
+    await onSubmit({ ...formData, serviceName: service.name });
   };
 
   const update = (field) => (event) => setFormData((current) => ({ ...current, [field]: event.target.value }));
@@ -27,12 +27,12 @@ export const BookingModal = ({ service, prefill = {}, onClose, onSubmit }) => {
           <button
             onClick={onClose}
             className="absolute top-4 right-4 text-white/80 hover:text-white transition w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10"
-            aria-label="Cerrar reserva"
+            aria-label="Cerrar solicitud"
           >
             <Icon name="X" size={20} />
           </button>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 text-amber-200 text-[10px] font-bold uppercase tracking-widest mb-3 border border-white/20">
-            <Icon name="Sparkles" size={12} /> Reserva premium
+            <Icon name="Sparkles" size={12} /> Solicitud premium
           </div>
           <h3 className="text-2xl md:text-3xl font-display font-bold mb-1 leading-tight">{service.name}</h3>
           <p className="text-cyan-100 text-sm md:text-base flex items-center gap-2">
@@ -107,11 +107,19 @@ export const BookingModal = ({ service, prefill = {}, onClose, onSubmit }) => {
         </div>
 
         <div className="p-5 md:p-7 border-t border-slate-200 bg-white shrink-0">
-          <button form="booking-form" type="submit" className="btn-primary w-full text-base md:text-lg">
-            <Icon name="Mail" size={20} /> Enviar reserva por correo
+          <button form="booking-form" type="submit" disabled={submitting} className="btn-primary w-full text-base md:text-lg disabled:opacity-60 disabled:cursor-not-allowed">
+            {submitting ? (
+              <>
+                <Icon name="Loader" size={20} className="animate-spin" /> Enviando solicitud...
+              </>
+            ) : (
+              <>
+                <Icon name="Mail" size={20} /> Enviar solicitud
+              </>
+            )}
           </button>
           <p className="text-center text-xs text-slate-500 mt-3 flex items-center justify-center gap-1.5">
-            <Icon name="Info" size={14} /> No se requiere pago adelantado.
+            <Icon name="Info" size={14} /> Te contactaremos para confirmar disponibilidad.
           </p>
         </div>
       </div>

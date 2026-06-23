@@ -1,4 +1,4 @@
-export const SERVICES_STORAGE_KEY = "transporte-ovando-services";
+export const SERVICES_STORAGE_KEY = "transporte-ovando-services-v2";
 
 // ── Contacto y redes (fuente única de verdad) ───────────────────────────────
 export const BRAND_NAME = "Transporte Turístico Ovando";
@@ -65,11 +65,36 @@ export const ICON_OPTIONS = [
   ["ShipWheel", "Tour"]
 ];
 
+export const VEHICLE_IMAGES = {
+  tahoeChauffeur: "/vehiculos/tahoe-chauffeur.jpg",
+  tahoeUrban: "/vehiculos/tahoe-urbano.jpg",
+  tahoeLights: "/vehiculos/tahoe-luces.jpg",
+  minivanPremium: "/vehiculos/minivan-premium.jpg",
+  vanInterior: "/vehiculos/van-interior.jpg",
+  executiveInterior: "/vehiculos/interior-ejecutivo.jpg"
+};
+
+export const DESTINATION_IMAGES = {
+  samanaPalm: "/destinos/samana-palmera.jpg",
+  playitaSamana: "/destinos/playita-samana.jpg",
+  frontonCove: "/destinos/fronton-cala.jpg",
+  coastAerial: "/destinos/costa-aerea.jpg",
+  playaLancha: "/destinos/playa-lancha.jpg",
+  playaPalmeras: "/destinos/playa-palmeras.jpg",
+  playaRincon: "/destinos/playa-rincon-aerea.jpg",
+  saonaBeach: "/destinos/saona-banistas.jpg",
+  saonaDonaEstela: "/destinos/saona-dona-estela.jpg"
+};
+
 export const MOCK_IMAGE_OPTIONS = [
-  { label: "Aeropuerto VIP", url: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Playa Caribe", url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Vehículo familiar", url: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1200&q=80" },
-  { label: "Tour privado", url: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80" }
+  { label: "Tahoe + chofer", url: VEHICLE_IMAGES.tahoeChauffeur },
+  { label: "SUV ejecutivo", url: VEHICLE_IMAGES.tahoeUrban },
+  { label: "Minivan premium", url: VEHICLE_IMAGES.minivanPremium },
+  { label: "Interior van", url: VEHICLE_IMAGES.vanInterior },
+  { label: "Isla Saona", url: DESTINATION_IMAGES.playaLancha },
+  { label: "Samaná", url: DESTINATION_IMAGES.samanaPalm },
+  { label: "Playa Rincón", url: DESTINATION_IMAGES.playaRincon },
+  { label: "Costa aérea", url: DESTINATION_IMAGES.coastAerial }
 ];
 
 export const EMPTY_SERVICE = {
@@ -81,23 +106,62 @@ export const EMPTY_SERVICE = {
   price: "",
   paxLimit: "",
   icon: "Car",
-  imageUrl: MOCK_IMAGE_OPTIONS[0].url,
+  imageUrl: VEHICLE_IMAGES.tahoeChauffeur,
   amenities: ["wifi", "ac"]
 };
 
 export const DEFAULT_SERVICES = [
   {
-    id: "vip-airport-transfer",
-    name: "Traslado VIP Aeropuerto",
+    id: "airport-hotel-vip",
+    name: "Aeropuerto → Hotel VIP",
     type: "transfer",
     location: "Aeropuerto Punta Cana (PUJ)",
-    destination: "Hoteles Bávaro / Punta Cana",
-    description: "Traslado privado en SUV premium con WiFi a bordo, agua fría y asistencia desde la terminal hasta tu hotel.",
+    destination: "Hoteles Bávaro, Punta Cana y Cap Cana",
+    description: "Recibimiento Meet & Greet y traslado privado en SUV premium tipo Tahoe o similar, con agua fría y asistencia desde la terminal.",
     price: 75,
     paxLimit: 5,
     icon: "Crown",
-    imageUrl: MOCK_IMAGE_OPTIONS[0].url,
+    imageUrl: VEHICLE_IMAGES.tahoeChauffeur,
     amenities: ["wifi", "ac", "water", "meetGreet", "bilingual"]
+  },
+  {
+    id: "hotel-airport-private",
+    name: "Hotel → Aeropuerto",
+    type: "transfer",
+    location: "Hoteles y villas",
+    destination: "PUJ, SDQ, LRM, STI y POP",
+    description: "Salida puntual hacia el aeropuerto con monitoreo de horario, vehículo climatizado y espacio cómodo para equipaje.",
+    price: 75,
+    paxLimit: 6,
+    icon: "Plane",
+    imageUrl: VEHICLE_IMAGES.tahoeLights,
+    amenities: ["wifi", "ac", "water", "luggage"]
+  },
+  {
+    id: "hotel-hotel-transfer",
+    name: "Hotel → Hotel",
+    type: "transfer",
+    location: "Punta Cana, Bávaro, Cap Cana y Uvero Alto",
+    destination: "Resorts, villas y zonas turísticas",
+    description: "Traslados privados entre hoteles para familias, parejas y grupos que necesitan moverse con comodidad dentro de la zona.",
+    price: 45,
+    paxLimit: 8,
+    icon: "Car",
+    imageUrl: VEHICLE_IMAGES.minivanPremium,
+    amenities: ["wifi", "ac", "water", "childSeat", "luggage"]
+  },
+  {
+    id: "airport-airport-transfer",
+    name: "Aeropuerto → Aeropuerto",
+    type: "transfer",
+    location: "PUJ, SDQ, STI, POP o LRM",
+    destination: "Conexiones entre aeropuertos",
+    description: "Conexión privada entre aeropuertos dominicanos para vuelos enlazados, ejecutivos y grupos con itinerarios especiales.",
+    price: 160,
+    paxLimit: 5,
+    icon: "Map",
+    imageUrl: VEHICLE_IMAGES.executiveInterior,
+    amenities: ["wifi", "ac", "water", "meetGreet", "bilingual", "luggage"]
   },
   {
     id: "isla-saona-excursion",
@@ -105,24 +169,50 @@ export const DEFAULT_SERVICES = [
     type: "excursion",
     location: "Bayahíbe",
     destination: "Isla Saona",
-    description: "Día completo en catamarán y lancha rápida, con almuerzo buffet, bebidas y paradas en aguas cristalinas.",
+    description: "Día completo en lancha y catamarán con aguas cristalinas, playa caribeña, almuerzo y coordinación de transporte privado.",
     price: 85,
     paxLimit: 25,
     icon: "Palmtree",
-    imageUrl: MOCK_IMAGE_OPTIONS[1].url,
+    imageUrl: DESTINATION_IMAGES.playaLancha,
     amenities: ["bilingual", "water"]
   },
   {
-    id: "family-minivan",
-    name: "Minivan Familiar",
-    type: "transfer",
-    location: "Aeropuerto Las Américas (SDQ)",
-    destination: "Uvero Alto / Macao",
-    description: "Vehículo amplio para equipaje y grupos familiares, con opción de silla para bebé bajo solicitud.",
-    price: 60,
+    id: "private-tours-rd",
+    name: "Tours privados RD",
+    type: "excursion",
+    location: "Punta Cana / Bávaro",
+    destination: "Samaná, Santo Domingo, Altos de Chavón y más",
+    description: "Rutas privadas a diferentes puntos del país, pensadas para grupos que quieren explorar sin depender de excursiones masivas.",
+    price: 120,
+    paxLimit: 12,
+    icon: "ShipWheel",
+    imageUrl: DESTINATION_IMAGES.samanaPalm,
+    amenities: ["ac", "water", "bilingual"]
+  },
+  {
+    id: "modern-vehicles-driver",
+    name: "Vehículos modernos con chofer",
+    type: "rental",
+    location: "Servicio por horas o por día",
+    destination: "Eventos, cenas, reuniones y recorridos",
+    description: "SUVs y minivans modernas con chofer profesional para itinerarios flexibles, ejecutivos y ocasiones especiales.",
+    price: 140,
     paxLimit: 8,
     icon: "Users",
-    imageUrl: MOCK_IMAGE_OPTIONS[2].url,
-    amenities: ["wifi", "ac", "childSeat", "luggage"]
+    imageUrl: VEHICLE_IMAGES.vanInterior,
+    amenities: ["wifi", "ac", "water", "bilingual", "luggage"]
+  },
+  {
+    id: "premium-rent-a-car",
+    name: "Rent a Car premium",
+    type: "rental",
+    location: "Punta Cana y Santo Domingo",
+    destination: "Entrega coordinada según disponibilidad",
+    description: "Opciones premium para renta de vehículos modernos. Ideal para clientes que buscan movilidad independiente y estilo.",
+    price: 95,
+    paxLimit: 7,
+    icon: "KeyRound",
+    imageUrl: VEHICLE_IMAGES.tahoeUrban,
+    amenities: ["ac", "luggage"]
   }
 ];

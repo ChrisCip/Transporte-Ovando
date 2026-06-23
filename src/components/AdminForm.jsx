@@ -50,7 +50,7 @@ export const AdminForm = ({ initialService, onSubmit, onCancel }) => {
 
       <div>
         <label className={labelClass}>Imagen *</label>
-        <input required type="url" value={formData.imageUrl} onChange={(event) => update("imageUrl", event.target.value)} className={inputClass} placeholder="https://..." />
+        <input required type="text" value={formData.imageUrl} onChange={(event) => update("imageUrl", event.target.value)} className={inputClass} placeholder="/vehiculos/tahoe-chauffeur.jpg" />
         <div className="grid grid-cols-2 gap-2 mt-3">
           {MOCK_IMAGE_OPTIONS.map((imageOption) => (
             <button key={imageOption.url} type="button" onClick={() => update("imageUrl", imageOption.url)} className="text-xs bg-slate-50 hover:bg-cyan-50 text-slate-700 hover:text-cyan-700 border border-slate-200 hover:border-cyan-200 px-3 py-2 rounded-lg font-semibold transition">

@@ -2,7 +2,7 @@ import React, { useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useReducedMotion } from 'framer-motion';
 import { Icon } from '../Icon';
 import { ServiceImage } from './ServiceImage';
-import { formatCurrency, getServiceTypeLabel } from '../utils/helpers';
+import { getServiceTypeLabel } from '../utils/helpers';
 import { AMENITY_CATALOG, SERVICE_TYPES } from '../data/constants';
 
 const FILTERS = [
@@ -25,7 +25,7 @@ const AmenityChip = ({ amenityKey }) => {
 
 // Tarjeta con tilt 3D + parallax de imagen al mover el ratón (desactivado en
 // prefers-reduced-motion). Tilt suavizado con muelles de framer-motion.
-const ServiceCard = ({ service, onBook, reduce }) => {
+const ServiceCard = ({ service, onBook, reduce, className = "" }) => {
   const ref = useRef(null);
   const mx = useMotionValue(0.5);
   const my = useMotionValue(0.5);
@@ -57,7 +57,7 @@ const ServiceCard = ({ service, onBook, reduce }) => {
       onMouseMove={onMove}
       onMouseLeave={onLeave}
       style={reduce ? undefined : { rotateX, rotateY, transformPerspective: 1000 }}
-      className="group relative bg-white rounded-3xl shadow-soft border border-slate-100 flex flex-col overflow-hidden hover:shadow-2xl hover:border-cyan-200 transition-shadow duration-300 will-change-transform"
+      className={`group relative bg-white rounded-3xl shadow-soft border border-slate-100 flex flex-col overflow-hidden hover:shadow-2xl hover:border-cyan-200 transition-shadow duration-300 will-change-transform ${className}`}
     >
       <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
         <motion.div
@@ -77,8 +77,8 @@ const ServiceCard = ({ service, onBook, reduce }) => {
 
         <div className="absolute left-4 right-4 bottom-4 flex items-end justify-between gap-3 text-white">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-widest text-cyan-200/90">Desde</p>
-            <p className="font-display font-bold drop-shadow" style={{ fontSize: 'clamp(1.5rem, 3.5vw, 1.875rem)' }}>{formatCurrency(service.price)}</p>
+            <p className="text-[10px] uppercase tracking-widest text-cyan-200/90">Servicio privado</p>
+            <p className="font-display font-bold drop-shadow" style={{ fontSize: 'clamp(1.25rem, 3vw, 1.5rem)' }}>Cotización rápida</p>
           </div>
           <span className="text-xs font-semibold bg-white/20 backdrop-blur-sm border border-white/30 px-2.5 py-1 rounded-full">
             hasta {service.paxLimit} pax
@@ -111,9 +111,9 @@ const ServiceCard = ({ service, onBook, reduce }) => {
 
         <button
           onClick={() => onBook(service)}
-          className="btn-shine mt-auto group/btn w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-cyan-600 text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md hover:shadow-cyan"
+          className="mt-auto group/btn w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-cyan-600 text-white font-bold py-3.5 rounded-xl transition-all duration-300 shadow-md hover:shadow-cyan"
         >
-          Reservar ahora
+          Solicitar servicio
           <Icon name="ArrowRight" size={18} className="transition-transform duration-300 group-hover/btn:translate-x-1" />
         </button>
       </div>
@@ -124,11 +124,18 @@ const ServiceCard = ({ service, onBook, reduce }) => {
 export const ServicesList = ({ services, onBook }) => {
   const [filter, setFilter] = useState("all");
   const reduce = useReducedMotion();
+  const scrollerRef = useRef(null);
 
   const filtered = useMemo(
     () => (filter === "all" ? services : services.filter((service) => service.type === filter)),
     [services, filter]
   );
+
+  const scrollBy = (dir) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.85, 460), behavior: reduce ? 'auto' : 'smooth' });
+  };
 
   return (
     <section id="servicios" className="py-16 md:py-24 bg-slate-50 relative">
@@ -181,13 +188,36 @@ export const ServicesList = ({ services, onBook }) => {
             <p className="text-slate-600 font-medium">No hay servicios en esta categoría aún.</p>
           </div>
         ) : (
-          <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <AnimatePresence mode="popLayout">
-              {filtered.map((service) => (
-                <ServiceCard key={service.id} service={service} onBook={onBook} reduce={reduce} />
-              ))}
-            </AnimatePresence>
-          </motion.div>
+          <div className="relative">
+            {/* Flechas (desktop) */}
+            <div className="hidden md:flex justify-end gap-2 mb-5">
+              <button onClick={() => scrollBy(-1)} aria-label="Servicios anteriores" className="w-12 h-12 rounded-full border border-slate-200 bg-white hover:border-cyan-400 hover:text-cyan-600 text-slate-700 flex items-center justify-center transition shadow-soft">
+                <Icon name="ChevronLeft" size={22} />
+              </button>
+              <button onClick={() => scrollBy(1)} aria-label="Más servicios" className="w-12 h-12 rounded-full border border-slate-200 bg-white hover:border-cyan-400 hover:text-cyan-600 text-slate-700 flex items-center justify-center transition shadow-soft">
+                <Icon name="ChevronRight" size={22} />
+              </button>
+            </div>
+
+            <motion.div
+              ref={scrollerRef}
+              layout
+              className="flex gap-6 md:gap-8 overflow-x-auto snap-x-mandatory no-scrollbar pb-4 -mx-4 px-4 md:mx-0 md:px-1"
+            >
+              <AnimatePresence mode="popLayout">
+                {filtered.map((service) => (
+                  <ServiceCard
+                    key={service.id}
+                    service={service}
+                    onBook={onBook}
+                    reduce={reduce}
+                    className="snap-start shrink-0 w-[85vw] sm:w-[22rem] lg:w-[24rem]"
+                  />
+                ))}
+              </AnimatePresence>
+              <div className="shrink-0 w-1 md:w-2" aria-hidden />
+            </motion.div>
+          </div>
         )}
       </div>
     </section>
