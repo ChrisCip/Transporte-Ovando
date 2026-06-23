@@ -1,8 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
 import { Icon } from '../Icon';
 import { ServiceImage } from './ServiceImage';
 import { AMENITY_CATALOG, EMPTY_SERVICE, ICON_OPTIONS, MOCK_IMAGE_OPTIONS, SERVICE_TYPES } from '../data/constants';
+
+const MAX_IMAGE_SIZE = 4 * 1024 * 1024;
 
 export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = false }) => {
   const [formData, setFormData] = useState(() => ({
@@ -32,6 +33,52 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
+  const uploadImageToServer = (file) => new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const timeoutId = window.setTimeout(() => {
+      xhr.abort();
+      reject(new Error("La subida tardó demasiado. Prueba una imagen más liviana o vuelve a intentarlo."));
+    }, 60000);
+
+    xhr.open('POST', '/api/admin-upload-image');
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('Content-Type', file.type);
+    xhr.setRequestHeader('X-Upload-Content-Type', file.type);
+    xhr.setRequestHeader('X-Upload-File-Name', encodeURIComponent(sanitizeFileName(file.name)));
+
+    xhr.upload.onprogress = (progressEvent) => {
+      if (!progressEvent.lengthComputable) return;
+      const nextProgress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
+      setUploadProgress(Math.max(1, Math.min(99, nextProgress)));
+    };
+
+    xhr.onload = () => {
+      window.clearTimeout(timeoutId);
+      let data = {};
+      try {
+        data = JSON.parse(xhr.responseText || '{}');
+      } catch {
+        data = {};
+      }
+      if (xhr.status >= 200 && xhr.status < 300 && data.url) {
+        resolve(data);
+        return;
+      }
+      reject(new Error(data.message || "No se pudo subir la imagen."));
+    };
+
+    xhr.onerror = () => {
+      window.clearTimeout(timeoutId);
+      reject(new Error("No se pudo conectar con Vercel Blob."));
+    };
+
+    xhr.onabort = () => {
+      window.clearTimeout(timeoutId);
+    };
+
+    xhr.send(file);
+  });
+
   const handleImageUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -44,28 +91,17 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
       return;
     }
 
-    if (file.size > 8 * 1024 * 1024) {
-      setUploadError("La imagen debe pesar menos de 8 MB.");
+    if (file.size > MAX_IMAGE_SIZE) {
+      setUploadError("La imagen debe pesar menos de 4 MB.");
       event.target.value = "";
       return;
     }
 
     setUploadingImage(true);
     setUploadProgress(0);
-    const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 45000);
 
     try {
-      const safeName = sanitizeFileName(file.name) || `servicio-${Date.now()}.jpg`;
-      const pathname = `servicios/${Date.now()}-${safeName}`;
-      const blob = await upload(pathname, file, {
-        access: 'public',
-        handleUploadUrl: '/api/admin-upload-image',
-        abortSignal: controller.signal,
-        onUploadProgress: ({ percentage }) => {
-          setUploadProgress(Math.max(1, Math.round(percentage || 0)));
-        },
-      });
+      const blob = await uploadImageToServer(file);
       update("imageUrl", blob.url);
       setUploadProgress(100);
     } catch (error) {
@@ -74,7 +110,6 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
         : error?.message || "No se pudo subir la imagen.";
       setUploadError(message);
     } finally {
-      window.clearTimeout(timeoutId);
       setUploadingImage(false);
       event.target.value = "";
     }
@@ -136,7 +171,7 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
               </>
             )}
           </button>
-          <p className="text-xs text-slate-500 mt-2">JPG, PNG o WebP. Recomendado: fotos reales horizontales, menos de 8 MB.</p>
+          <p className="text-xs text-slate-500 mt-2">JPG, PNG o WebP. Recomendado: fotos reales horizontales, menos de 4 MB.</p>
           {uploadError && <p className="text-rose-500 text-sm mt-2 flex items-center gap-1"><Icon name="AlertCircle" size={14} /> {uploadError}</p>}
         </div>
         <div className="grid grid-cols-2 gap-2 mt-3">
