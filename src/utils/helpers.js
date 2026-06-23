@@ -1,15 +1,7 @@
-import { DEFAULT_SERVICES, SERVICES_STORAGE_KEY, SERVICE_TYPES, WHATSAPP_NUMBER } from "../data/constants";
+import { DEFAULT_SERVICES, SERVICE_TYPES, WHATSAPP_NUMBER } from "../data/constants";
 
 export const getInitialServices = () => {
-  if (typeof window === "undefined") return DEFAULT_SERVICES;
-  try {
-    const saved = window.localStorage.getItem(SERVICES_STORAGE_KEY);
-    if (!saved) return DEFAULT_SERVICES;
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) && parsed.length ? parsed : DEFAULT_SERVICES;
-  } catch {
-    return DEFAULT_SERVICES;
-  }
+  return DEFAULT_SERVICES;
 };
 
 export const formatCurrency = (amount) => `$${Number(amount || 0).toLocaleString("en-US")}`;

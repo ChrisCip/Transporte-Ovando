@@ -4,7 +4,7 @@ import { ServiceImage } from './ServiceImage';
 import { AdminForm } from './AdminForm';
 import { formatCurrency, getServiceTypeLabel } from '../utils/helpers';
 
-export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, auth, setAuth }) => {
+export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, saving = false, auth, setAuth }) => {
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(true);
@@ -65,13 +65,13 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
     setAuth(false);
   };
 
-  const handleSubmitService = (serviceData) => {
+  const handleSubmitService = async (serviceData) => {
     if (editingService) {
-      onUpdate(editingService.id, serviceData);
-      setEditingService(null);
-      return;
+      const saved = await onUpdate(editingService.id, serviceData);
+      if (saved) setEditingService(null);
+      return saved;
     }
-    onCreate(serviceData);
+    return onCreate(serviceData);
   };
 
   if (checking) {
@@ -134,7 +134,7 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button onClick={onReset} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+            <button onClick={onReset} disabled={saving} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed">
               <Icon name="RotateCcw" size={16} /> Restaurar catálogo
             </button>
             <a href="#inicio" className="text-sm font-medium text-cyan-100 hover:text-white flex items-center gap-2 transition px-2 py-2">
@@ -153,12 +153,15 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
             <h2 className="text-2xl font-display font-bold text-slate-900 mb-1 flex items-center gap-2">
               <Icon name={editingService ? "Pencil" : "PlusSquare"} size={22} className="text-cyan-600" /> {formTitle}
             </h2>
-            <p className="text-sm text-slate-500 mb-6">Guardado en este navegador (localStorage).</p>
+            <p className="text-sm text-slate-500 mb-6">
+              {saving ? "Guardando en Vercel Blob..." : "Guardado remoto en Vercel Blob."}
+            </p>
             <AdminForm
               key={editingService?.id || "new-service"}
               initialService={editingService}
               onSubmit={handleSubmitService}
               onCancel={editingService ? () => setEditingService(null) : undefined}
+              submitting={saving}
             />
           </div>
         </div>
@@ -199,10 +202,10 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
                       <span className="text-xs font-semibold text-slate-700 flex items-center gap-1"><Icon name="Users" size={12} /> {service.paxLimit} pax</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => setEditingService(service)} className="w-10 h-10 rounded-lg bg-slate-50 hover:bg-cyan-50 hover:text-cyan-700 text-slate-700 flex items-center justify-center transition" aria-label={`Editar ${service.name}`}>
+                      <button onClick={() => setEditingService(service)} disabled={saving} className="w-10 h-10 rounded-lg bg-slate-50 hover:bg-cyan-50 hover:text-cyan-700 text-slate-700 flex items-center justify-center transition disabled:opacity-60 disabled:cursor-not-allowed" aria-label={`Editar ${service.name}`}>
                         <Icon name="Pencil" size={16} />
                       </button>
-                      <button onClick={() => onDelete(service.id)} className="w-10 h-10 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition" aria-label={`Eliminar ${service.name}`}>
+                      <button onClick={() => onDelete(service.id)} disabled={saving} className="w-10 h-10 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition disabled:opacity-60 disabled:cursor-not-allowed" aria-label={`Eliminar ${service.name}`}>
                         <Icon name="Trash2" size={16} />
                       </button>
                     </div>

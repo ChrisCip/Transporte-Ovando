@@ -10,7 +10,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
 import { WhatsAppFab } from './components/WhatsAppFab';
-import { DEFAULT_SERVICES, SERVICES_STORAGE_KEY } from './data/constants';
+import { DEFAULT_SERVICES } from './data/constants';
 import { buildBookingWhatsAppLink } from './utils/bookingLead';
 import { createServiceId, getInitialServices } from './utils/helpers';
 
@@ -21,11 +21,28 @@ const App = () => {
   const [bookingService, setBookingService] = useState(null);
   const [bookingPrefill, setBookingPrefill] = useState({});
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
+  const [servicesSaving, setServicesSaving] = useState(false);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
-    window.localStorage.setItem(SERVICES_STORAGE_KEY, JSON.stringify(services));
-  }, [services]);
+    let alive = true;
+
+    const loadServices = async () => {
+      try {
+        const response = await fetch('/api/services', { cache: 'no-store' });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (alive && Array.isArray(data.services)) {
+          setServices(data.services);
+        }
+      } catch {
+        // Si la API no responde, mantenemos el catalogo base compilado.
+      }
+    };
+
+    loadServices();
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     const handleHashChange = () => setView(window.location.hash === "#admin" ? "admin" : "client");
@@ -39,26 +56,62 @@ const App = () => {
     window.setTimeout(() => setToast(null), 4500);
   };
 
+  const persistServices = async (nextServices, successMessage, previousServices) => {
+    setServices(nextServices);
+    setServicesSaving(true);
+
+    try {
+      const response = await fetch('/api/services', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ services: nextServices }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        const error = new Error(data.message || 'save_failed');
+        error.status = response.status;
+        throw error;
+      }
+
+      const data = await response.json();
+      if (Array.isArray(data.services)) setServices(data.services);
+      showToast(successMessage);
+      return true;
+    } catch (error) {
+      setServices(previousServices);
+      if (error?.status === 401) {
+        setAdminAuth(false);
+        showToast("Tu sesion admin vencio. Ingresa de nuevo.");
+      } else {
+        showToast(error?.message || "No se pudo guardar el catalogo remoto.");
+      }
+      return false;
+    } finally {
+      setServicesSaving(false);
+    }
+  };
+
   const handleCreateService = (newService) => {
-    setServices((current) => [{ ...newService, id: createServiceId() }, ...current]);
-    showToast("Servicio creado");
+    const nextServices = [{ ...newService, id: createServiceId() }, ...services];
+    return persistServices(nextServices, "Servicio creado", services);
   };
 
   const handleUpdateService = (serviceId, updated) => {
-    setServices((current) => current.map((service) => (
+    const nextServices = services.map((service) => (
       service.id === serviceId ? { ...updated, id: serviceId } : service
-    )));
-    showToast("Servicio actualizado");
+    ));
+    return persistServices(nextServices, "Servicio actualizado", services);
   };
 
   const handleDeleteService = (serviceId) => {
-    setServices((current) => current.filter((service) => service.id !== serviceId));
-    showToast("Servicio eliminado");
+    const nextServices = services.filter((service) => service.id !== serviceId);
+    return persistServices(nextServices, "Servicio eliminado", services);
   };
 
   const handleResetServices = () => {
-    setServices(DEFAULT_SERVICES);
-    showToast("Servicios restaurados");
+    return persistServices(DEFAULT_SERVICES, "Servicios restaurados", services);
   };
 
   const handleQuote = (quote) => submitBooking(quote);
@@ -129,6 +182,7 @@ const App = () => {
           onUpdate={handleUpdateService}
           onDelete={handleDeleteService}
           onReset={handleResetServices}
+          saving={servicesSaving}
           auth={adminAuth}
           setAuth={setAdminAuth}
         />
