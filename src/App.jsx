@@ -11,6 +11,7 @@ import { Footer } from './components/Footer';
 import { Toast } from './components/Toast';
 import { WhatsAppFab } from './components/WhatsAppFab';
 import { DEFAULT_SERVICES, SERVICES_STORAGE_KEY } from './data/constants';
+import { buildBookingWhatsAppLink } from './utils/bookingLead';
 import { createServiceId, getInitialServices } from './utils/helpers';
 
 const App = () => {
@@ -60,16 +61,7 @@ const App = () => {
     showToast("Servicios restaurados");
   };
 
-  const handleQuote = (quote) => {
-    setBookingPrefill(quote);
-    const target = services.find((service) => service.type === "transfer") || services[0];
-    if (target) {
-      setBookingService(target);
-    } else {
-      const element = document.getElementById("servicios");
-      element?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const handleQuote = (quote) => submitBooking(quote);
 
   const handleBook = (service) => {
     setBookingPrefill({});
@@ -78,26 +70,37 @@ const App = () => {
 
   const submitBooking = async (bookingData) => {
     setBookingSubmitting(true);
+    const whatsappUrl = buildBookingWhatsAppLink(bookingData);
+
     try {
-      const response = await fetch('/api/send-booking', {
+      const emailRequest = fetch('/api/send-booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
         body: JSON.stringify(bookingData),
       });
 
+      const whatsappWindow = window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+      if (!whatsappWindow) {
+        window.location.href = whatsappUrl;
+      }
+
+      const response = await emailRequest;
       if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
         const error = new Error(response.status === 503 ? "email_not_configured" : "send_failed");
         error.status = response.status;
+        error.userMessage = data.message;
         throw error;
       }
 
       setBookingService(null);
       setBookingPrefill({});
-      showToast("Solicitud enviada. Te contactaremos para confirmar.");
+      showToast("Solicitud enviada por correo. Continúa la conversación en WhatsApp.");
     } catch (error) {
       const message = error?.status === 503
         ? "El correo de reservas no está configurado en Vercel."
-        : "No se pudo enviar la solicitud. Intenta por WhatsApp.";
+        : error?.userMessage || "No se pudo enviar la solicitud. Intenta por WhatsApp.";
       showToast(message);
     } finally {
       setBookingSubmitting(false);
@@ -110,7 +113,7 @@ const App = () => {
         <>
           <Header />
           <main className="flex-1">
-            <Hero onQuote={handleQuote} />
+            <Hero onQuote={handleQuote} submitting={bookingSubmitting} />
             <ExperienceStrip />
             <GoogleReviews />
             <ServicesList services={services} onBook={handleBook} />

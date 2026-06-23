@@ -5,7 +5,7 @@ export const BRAND_NAME = "Transporte Turístico Ovando";
 export const WHATSAPP_NUMBER = "18098016460";        // solo dígitos (wa.me)
 export const WHATSAPP_DISPLAY = "+1 (809) 801-6460";  // formato para mostrar
 export const PHONE_TEL = "+18098016460";              // href tel:
-export const CONTACT_EMAIL = "reservas@ovando.com";
+export const CONTACT_EMAIL = "transporteovando@gmail.com";
 
 export const INSTAGRAM_URL = "https://www.instagram.com/transporteturisticoovando/";
 export const INSTAGRAM_HANDLE = "@transporteturisticoovando";

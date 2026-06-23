@@ -9,7 +9,7 @@ import { WaveDivider } from './WaveDivider';
 import { buildWhatsAppLink } from '../utils/helpers';
 import { INSTAGRAM_URL, WHATSAPP_DISPLAY } from '../data/constants';
 
-export const Hero = ({ onQuote }) => {
+export const Hero = ({ onQuote, submitting = false }) => {
   const reduce = useReducedMotion();
 
   const container = {
@@ -140,7 +140,7 @@ export const Hero = ({ onQuote }) => {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.3, ease: [0.2, 0.7, 0.2, 1] }}
         >
-          <QuoteWidget onQuote={onQuote} />
+          <QuoteWidget onQuote={onQuote} submitting={submitting} />
         </motion.div>
       </div>
 
