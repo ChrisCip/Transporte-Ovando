@@ -116,14 +116,16 @@ export default async function handler(request, response) {
 
     const safeName = sanitizeFileName(getRequestFileName(request));
     const blob = await put(`servicios/${Date.now()}-${safeName}`, fileBuffer, {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: true,
       contentType,
       cacheControlMaxAge: 60 * 60 * 24 * 365,
     });
 
+    const imageUrl = `/api/blob-image?pathname=${encodeURIComponent(blob.pathname)}`;
+
     return response.status(200).json({
-      url: blob.url,
+      url: imageUrl,
       pathname: blob.pathname,
       contentType: blob.contentType,
     });
