@@ -1,26 +1,68 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Icon } from '../Icon';
 import { ServiceImage } from './ServiceImage';
 import { AdminForm } from './AdminForm';
 import { formatCurrency, getServiceTypeLabel } from '../utils/helpers';
-import { ADMIN_PASSWORD } from '../data/constants';
 
 export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, auth, setAuth }) => {
   const [pass, setPass] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
+  const [checking, setChecking] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [editingService, setEditingService] = useState(null);
 
   const formTitle = editingService ? "Editar servicio" : "Nuevo servicio";
 
-  const handleLogin = (event) => {
+  // Al entrar: verifica si ya hay sesión válida (cookie HttpOnly del servidor).
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin-session', { credentials: 'same-origin' });
+        const data = await res.json();
+        if (alive && data.authenticated) setAuth(true);
+      } catch {
+        /* sin backend disponible → no autenticado */
+      } finally {
+        if (alive) setChecking(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [setAuth]);
+
+  const handleLogin = async (event) => {
     event.preventDefault();
-    if (pass === ADMIN_PASSWORD) {
-      setAuth(true);
-      setError(false);
-      setPass("");
-    } else {
-      setError(true);
+    setSubmitting(true);
+    setError("");
+    try {
+      const res = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ password: pass }),
+      });
+      if (res.ok) {
+        setAuth(true);
+        setPass("");
+      } else if (res.status === 503) {
+        setError("Acceso admin no configurado en el servidor.");
+      } else {
+        setError("Contraseña incorrecta");
+      }
+    } catch {
+      setError("No se pudo conectar con el servidor.");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin-logout', { method: 'POST', credentials: 'same-origin' });
+    } catch {
+      /* ignora; igual cerramos sesión local */
+    }
+    setAuth(false);
   };
 
   const handleSubmitService = (serviceData) => {
@@ -31,6 +73,16 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
     }
     onCreate(serviceData);
   };
+
+  if (checking) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-5 admin-gradient text-white">
+        <div className="flex items-center gap-3 text-sm font-medium">
+          <Icon name="Loader" size={20} className="animate-spin" /> Verificando sesión…
+        </div>
+      </div>
+    );
+  }
 
   if (!auth) {
     return (
@@ -47,14 +99,15 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
               type="password"
               placeholder="Contraseña"
               value={pass}
-              onChange={(event) => { setPass(event.target.value); setError(false); }}
+              autoComplete="current-password"
+              onChange={(event) => { setPass(event.target.value); setError(""); }}
               className={`w-full px-5 py-4 rounded-xl border-2 outline-none transition font-medium ${error ? "border-rose-400 bg-rose-50 focus:border-rose-500 text-rose-900" : "border-slate-200 bg-white focus:border-cyan-500"}`}
             />
-            {error && <p className="text-rose-500 text-sm mt-2 flex items-center gap-1"><Icon name="AlertCircle" size={14} /> Contraseña incorrecta</p>}
+            {error && <p className="text-rose-500 text-sm mt-2 flex items-center gap-1"><Icon name="AlertCircle" size={14} /> {error}</p>}
           </div>
 
-          <button type="submit" className="btn-primary w-full">
-            Ingresar <Icon name="ArrowRight" size={20} />
+          <button type="submit" disabled={submitting} className="btn-primary w-full disabled:opacity-60 disabled:cursor-not-allowed">
+            {submitting ? <><Icon name="Loader" size={20} className="animate-spin" /> Ingresando…</> : <>Ingresar <Icon name="ArrowRight" size={20} /></>}
           </button>
 
           <div className="mt-8 pt-6 border-t border-slate-200">
@@ -87,7 +140,7 @@ export const AdminPanel = ({ services, onCreate, onUpdate, onDelete, onReset, au
             <a href="#inicio" className="text-sm font-medium text-cyan-100 hover:text-white flex items-center gap-2 transition px-2 py-2">
               <Icon name="Globe" size={16} /> Ver sitio
             </a>
-            <button onClick={() => setAuth(false)} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+            <button onClick={handleLogout} className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
               <Icon name="LogOut" size={16} /> Salir
             </button>
           </div>

@@ -1,4 +1,3 @@
-export const ADMIN_PASSWORD = "admin123";
 export const SERVICES_STORAGE_KEY = "transporte-ovando-services";
 
 // ── Contacto y redes (fuente única de verdad) ───────────────────────────────

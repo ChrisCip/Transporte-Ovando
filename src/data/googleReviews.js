@@ -8,6 +8,7 @@ export const FALLBACK_REVIEWS = [
     author: 'María Fernández',
     rating: 5,
     relativeDate: 'Hace 2 semanas',
+    photoUrl: '/reviews/r1.jpg',
     text: 'Excelente servicio desde el aeropuerto de Punta Cana hasta Bávaro. El chofer nos esperaba con un cartel, vehículo impecable y con aire. Puntualísimos. ¡100% recomendados!',
   },
   {
@@ -15,6 +16,7 @@ export const FALLBACK_REVIEWS = [
     author: 'James Carter',
     rating: 5,
     relativeDate: 'Hace 1 mes',
+    photoUrl: '/reviews/r2.jpg',
     text: 'Booked a private transfer from PUJ to our resort. Driver was bilingual, friendly and on time. Clean SUV, cold water on board. Made our arrival stress-free. Highly recommend!',
   },
   {
@@ -22,6 +24,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Carlos Jiménez',
     rating: 5,
     relativeDate: 'Hace 3 semanas',
+    photoUrl: '/reviews/r3.jpg',
     text: 'Hicimos la excursión a Isla Saona con ellos y fue espectacular. Coordinaron todo el traslado puerta a puerta sin demoras. Trato cercano y profesional.',
   },
   {
@@ -29,6 +32,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Sophie Laurent',
     rating: 5,
     relativeDate: 'Hace 1 mes',
+    photoUrl: '/reviews/r4.jpg',
     text: 'Service au top ! Chauffeur ponctuel et très courtois. Véhicule confortable pour toute la famille avec siège bébé. Je referai appel à eux sans hésiter.',
   },
   {
@@ -36,6 +40,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Pedro Rosario',
     rating: 5,
     relativeDate: 'Hace 2 meses',
+    photoUrl: '/reviews/r5.jpg',
     text: 'Contraté el traslado SDQ a Uvero Alto para mi familia. Minivan amplia, equipaje sin problema y precio justo. Comunicación rápida por WhatsApp. Volveré a usarlos.',
   },
   {
@@ -43,6 +48,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Ashley Thompson',
     rating: 4,
     relativeDate: 'Hace 1 mes',
+    photoUrl: '/reviews/r6.jpg',
     text: 'Great airport pickup and very professional driver. Only had to wait a few extra minutes but they kept me updated the whole time. Would book again.',
   },
   {
@@ -50,6 +56,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Luis Mateo',
     rating: 5,
     relativeDate: 'Hace 3 meses',
+    photoUrl: '/reviews/r7.jpg',
     text: 'De lo mejor en Punta Cana. Choferes certificados, muy seguros al manejar y conocen toda la zona. Nos llevaron a Cap Cana y de tour por la costa. Inmejorable.',
   },
   {
@@ -57,6 +64,7 @@ export const FALLBACK_REVIEWS = [
     author: 'Giulia Romano',
     rating: 5,
     relativeDate: 'Hace 2 semanas',
+    photoUrl: '/reviews/r8.jpg',
     text: 'Servizio eccellente e puntuale dall’aeroporto. Autista gentile e disponibile, auto pulita e comoda. Consigliatissimo per chi visita Punta Cana!',
   },
 ];

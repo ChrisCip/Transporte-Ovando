@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Icon } from '../Icon';
+import { GoogleLogo, WhatsAppLogo, InstagramLogo } from './BrandIcons';
 import { QuoteWidget } from './QuoteWidget';
 import { HeroMedia } from './HeroMedia';
 import { FoamParticles } from './FoamParticles';
@@ -39,9 +40,9 @@ export const Hero = ({ onQuote }) => {
         >
           <motion.span
             variants={item}
-            className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/15 backdrop-blur-sm text-cyan-100 text-xs md:text-sm font-semibold mb-5 border border-white/20"
+            className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-amber-500 text-white text-xs md:text-sm font-semibold mb-5 shadow-lg shadow-amber-500/30"
           >
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
             #1 en traslados turísticos · Rep. Dominicana
           </motion.span>
 
@@ -83,7 +84,7 @@ export const Hero = ({ onQuote }) => {
           </motion.p>
 
           <motion.div variants={item} className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
-            <a href="#servicios" className="btn-primary btn-shine">
+            <a href="#servicios" className="btn-primary">
               Ver flota <Icon name="ArrowRight" size={18} />
             </a>
             <a href="#contacto" className="btn-ghost bg-white/15 border-white/20 text-white hover:bg-white/25 backdrop-blur-sm">
@@ -103,32 +104,32 @@ export const Hero = ({ onQuote }) => {
             <div className="flex items-center gap-2"><Icon name="Clock" size={18} className="text-amber-300" /> Disponible 24/7</div>
           </motion.div>
 
-          {/* Fila de redes / contacto directo */}
+          {/* Fila de redes / contacto directo — logos de marca reales */}
           <motion.div variants={item} className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 mt-6">
             <a
               href="#reseñas"
               aria-label="Ver reseñas de Google"
-              className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm font-semibold transition"
+              className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-white/90 text-slate-800 border border-white/20 px-4 py-2 text-sm font-semibold transition shadow-md"
             >
-              <Icon name="Star" size={16} className="text-amber-300 fill-amber-300" /> Google
+              <GoogleLogo className="w-4 h-4" /> Google
             </a>
             <a
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Síguenos en Instagram"
-              className="inline-flex items-center gap-2 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 px-4 py-2 text-sm font-semibold transition"
+              className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-white/90 text-slate-800 border border-white/20 px-4 py-2 text-sm font-semibold transition shadow-md"
             >
-              <Icon name="Instagram" size={16} /> Instagram
+              <InstagramLogo className="w-4 h-4" /> Instagram
             </a>
             <a
               href={buildWhatsAppLink()}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`WhatsApp ${WHATSAPP_DISPLAY}`}
-              className="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 hover:bg-emerald-500 border border-emerald-300/30 px-4 py-2 text-sm font-semibold transition"
+              className="inline-flex items-center gap-2 rounded-full bg-white hover:bg-white/90 text-slate-800 border border-white/20 px-4 py-2 text-sm font-semibold transition shadow-md"
             >
-              <Icon name="MessageCircle" size={16} /> {WHATSAPP_DISPLAY}
+              <WhatsAppLogo className="w-4 h-4" /> {WHATSAPP_DISPLAY}
             </a>
           </motion.div>
         </motion.div>

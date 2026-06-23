@@ -21,10 +21,7 @@ export const QuoteWidget = ({ onQuote }) => {
       className="glass rounded-3xl p-5 md:p-6 lg:p-7 w-full max-w-2xl mx-auto lg:mx-0 text-slate-900 rise delay-2"
     >
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-display font-bold text-lg md:text-xl text-slate-900 flex items-center gap-2">
-          <span className="w-9 h-9 rounded-xl bg-cyan-500 text-white flex items-center justify-center shadow-md">
-            <Icon name="Sparkles" size={18} />
-          </span>
+        <h3 className="font-display font-bold text-lg md:text-xl text-slate-900">
           Cotiza tu traslado
         </h3>
         <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full">

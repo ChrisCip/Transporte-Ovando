@@ -58,7 +58,6 @@ export const Footer = () => {
                 <a href="#reseñas" className="hover:text-cyan-300 transition">Reseñas</a>
                 <a href="#servicios" className="hover:text-cyan-300 transition">Nuestra flota</a>
                 <a href="#instagram" className="hover:text-cyan-300 transition">Instagram</a>
-                <a href="#admin" className="hover:text-cyan-300 transition">Panel admin</a>
               </div>
             </div>
 
@@ -83,9 +82,6 @@ export const Footer = () => {
 
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
             <p>© 2026 Transporte Turístico Ovando. Todos los derechos reservados.</p>
-            <a href="#admin" className="hover:text-cyan-300 transition flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 hover:border-cyan-400/40">
-              <Icon name="Lock" size={12} /> Acceso administrador
-            </a>
           </div>
         </div>
       </div>

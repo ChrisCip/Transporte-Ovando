@@ -123,7 +123,7 @@ export const GoogleReviews = () => {
             href={GOOGLE_REVIEWS_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary btn-shine w-full sm:w-auto"
+            className="btn-primary w-full sm:w-auto"
           >
             <GoogleG className="w-5 h-5" /> Ver todas las reseñas en Google
           </a>
