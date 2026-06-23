@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { upload } from '@vercel/blob/client';
+import { put as putBlob } from '@vercel/blob/client';
 import { Icon } from '../Icon';
 import { ServiceImage } from './ServiceImage';
 import { AMENITY_CATALOG, EMPTY_SERVICE, ICON_OPTIONS, MOCK_IMAGE_OPTIONS, SERVICE_TYPES } from '../data/constants';
@@ -31,6 +31,31 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
 
+  const requestUploadToken = async (pathname) => {
+    const response = await fetch('/api/admin-upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        type: 'blob.generate-client-token',
+        payload: {
+          pathname,
+          clientPayload: null,
+          multipart: false,
+        },
+      }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.message || 'No se pudo crear el token de subida.');
+    }
+    if (!data.clientToken) {
+      throw new Error('Vercel Blob no devolvio el token de subida.');
+    }
+    return data.clientToken;
+  };
+
   const handleImageUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -52,9 +77,11 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
     setUploadingImage(true);
     try {
       const safeName = sanitizeFileName(file.name) || `servicio-${Date.now()}.jpg`;
-      const blob = await upload(`servicios/${Date.now()}-${safeName}`, file, {
+      const pathname = `servicios/${Date.now()}-${safeName}`;
+      const token = await requestUploadToken(pathname);
+      const blob = await putBlob(pathname, file, {
         access: 'public',
-        handleUploadUrl: '/api/admin-upload-image',
+        token,
       });
       update("imageUrl", blob.url);
     } catch (error) {
