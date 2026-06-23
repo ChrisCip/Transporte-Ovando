@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { put as putBlob } from '@vercel/blob/client';
+import { upload } from '@vercel/blob/client';
 import { Icon } from '../Icon';
 import { ServiceImage } from './ServiceImage';
 import { AMENITY_CATALOG, EMPTY_SERVICE, ICON_OPTIONS, MOCK_IMAGE_OPTIONS, SERVICE_TYPES } from '../data/constants';
@@ -14,6 +14,7 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
   }));
   const fileInputRef = useRef(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadError, setUploadError] = useState("");
 
   const previewService = useMemo(() => ({
@@ -30,31 +31,6 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
     .replace(/[^a-z0-9.]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-
-  const requestUploadToken = async (pathname) => {
-    const response = await fetch('/api/admin-upload-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify({
-        type: 'blob.generate-client-token',
-        payload: {
-          pathname,
-          clientPayload: null,
-          multipart: false,
-        },
-      }),
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(data.message || 'No se pudo crear el token de subida.');
-    }
-    if (!data.clientToken) {
-      throw new Error('Vercel Blob no devolvio el token de subida.');
-    }
-    return data.clientToken;
-  };
 
   const handleImageUpload = async (event) => {
     const file = event.target.files?.[0];
@@ -75,18 +51,30 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
     }
 
     setUploadingImage(true);
+    setUploadProgress(0);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 45000);
+
     try {
       const safeName = sanitizeFileName(file.name) || `servicio-${Date.now()}.jpg`;
       const pathname = `servicios/${Date.now()}-${safeName}`;
-      const token = await requestUploadToken(pathname);
-      const blob = await putBlob(pathname, file, {
+      const blob = await upload(pathname, file, {
         access: 'public',
-        token,
+        handleUploadUrl: '/api/admin-upload-image',
+        abortSignal: controller.signal,
+        onUploadProgress: ({ percentage }) => {
+          setUploadProgress(Math.max(1, Math.round(percentage || 0)));
+        },
       });
       update("imageUrl", blob.url);
+      setUploadProgress(100);
     } catch (error) {
-      setUploadError(error?.message || "No se pudo subir la imagen.");
+      const message = error?.name === 'AbortError'
+        ? "La subida tardó demasiado. Prueba una imagen más liviana o vuelve a intentarlo."
+        : error?.message || "No se pudo subir la imagen.";
+      setUploadError(message);
     } finally {
+      window.clearTimeout(timeoutId);
       setUploadingImage(false);
       event.target.value = "";
     }
@@ -140,7 +128,7 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
           >
             {uploadingImage ? (
               <>
-                <Icon name="Loader" size={18} className="animate-spin" /> Subiendo imagen...
+                <Icon name="Loader" size={18} className="animate-spin" /> Subiendo imagen{uploadProgress ? ` ${uploadProgress}%` : "..."}
               </>
             ) : (
               <>
