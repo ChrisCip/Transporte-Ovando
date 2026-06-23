@@ -128,7 +128,7 @@ export const AdminForm = ({ initialService, onSubmit, onCancel, submitting = fal
           >
             {uploadingImage ? (
               <>
-                <Icon name="Loader" size={18} className="animate-spin" /> Subiendo imagen{uploadProgress ? ` ${uploadProgress}%` : "..."}
+                <Icon name="Loader" size={18} className="animate-spin" /> {uploadProgress >= 100 ? "Finalizando..." : `Subiendo imagen${uploadProgress ? ` ${uploadProgress}%` : "..."}`}
               </>
             ) : (
               <>

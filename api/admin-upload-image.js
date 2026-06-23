@@ -77,9 +77,6 @@ export default async function handler(request, response) {
           }),
         };
       },
-      onUploadCompleted: async ({ blob }) => {
-        console.log('admin image upload completed', blob.url);
-      },
     });
 
     return response.status(200).json(jsonResponse);
